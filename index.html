@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="refresh" content="300">
+<title>Pagos pendientes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
+<style>
+  html,body{margin:0;padding:0}
+  .app{
+    --bg:#eef2f6;--card:#ffffff;--tx:#0f172a;--su:#64748b;--bd:#e2e8f0;--ban:#0b2545;
+    --rj:#dc2626;--am:#f59e0b;--az:#2563eb;
+    --rjt:#b91c1c;--amt:#b45309;--azt:#1d4ed8;
+    --rjb:#fee2e2;--amb:#fef3c7;--azb:#dbeafe;
+    font-family:Roboto,"Segoe UI",Arial,sans-serif;
+    font-variant-numeric:tabular-nums;
+    background:var(--bg);color:var(--tx);min-height:100vh;
+  }
+  .app[data-theme="dark"]{
+    --bg:#0a0f1a;--card:#121a2b;--tx:#e8edf5;--su:#8b98ae;--bd:#1f2a40;--ban:#060a13;
+    --rjt:#f87171;--amt:#fbbf24;--azt:#60a5fa;
+    --rjb:#450a0a;--amb:#451a03;--azb:#172554;
+  }
+  .app *{box-sizing:border-box}
+  .in{width:100%;max-width:1000px;margin:0 auto;padding:0 24px}
+  .ban{background:var(--ban);color:#fff;padding:24px 0}
+  .ban .in{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+  .ban small{display:block;letter-spacing:.16em;font-size:11px;opacity:.65;text-transform:uppercase;font-weight:500}
+  .ban h1{margin:4px 0 0;font-size:26px;font-weight:700;color:#fff;letter-spacing:-.01em}
+  .der{text-align:right;font-size:12px;color:#fff;opacity:.9}
+  .tema{margin-top:8px;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4);
+        padding:5px 14px;border-radius:999px;font:500 12px Roboto,Arial,sans-serif;cursor:pointer}
+  .bd{padding-top:24px;padding-bottom:32px}
+  .tot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;
+       background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px 20px;margin-bottom:28px}
+  .tot .l{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--su);font-weight:500}
+  .tot b{display:block;font-size:30px;font-weight:700;margin-top:4px;color:var(--tx)}
+  .tot i{font-style:normal;font-size:13px;color:var(--su)}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+  .sh{display:flex;align-items:center;gap:8px;margin:0 0 10px}
+  .sh b{font-size:15px;font-weight:700;color:var(--tx)}
+  .sh i{font-style:normal;font-size:12px;color:var(--su)}
+  .g{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-bottom:28px}
+  .c{display:flex;background:var(--card);border:1px solid var(--bd);border-radius:12px;overflow:hidden;min-width:0}
+  .bar{width:6px;flex:none}
+  .cb{flex:1;padding:14px 16px;min-width:0}
+  .top{display:flex;justify-content:space-between;gap:10px}
+  .pv{font-weight:700;font-size:15px}
+  .sv{font-size:12px;color:var(--su);margin-top:2px}
+  .mto{font-weight:700;font-size:15px;white-space:nowrap}
+  .pie{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px;padding-top:10px;
+       border-top:1px solid var(--bd);font-size:12px;color:var(--su)}
+  .tm{font-weight:500;font-size:12px;white-space:nowrap}
+  .vacio{grid-column:1/-1;padding:14px;font-size:13px;color:var(--su);background:var(--card);border:1px dashed var(--bd);border-radius:12px}
+  .tv{color:var(--rjt)} .tp{color:var(--amt)} .tx{color:var(--azt)}
+  .pl{display:inline-block;padding:2px 10px;border-radius:999px;font-size:11.5px;font-weight:500}
+  .e-v{background:var(--rjb);color:var(--rjt)}
+  .e-p{background:var(--amb);color:var(--amt)}
+  .e-x{background:var(--azb);color:var(--azt)}
+  .h2{font-size:15px;font-weight:700;margin:8px 0 10px}
+  .pn{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:16px 18px;min-width:0}
+  .ch-h{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .ch-t{font-size:16px;font-weight:700}
+  .nvs{display:flex;gap:6px}
+  .nv{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:5px 12px;
+      font:500 13px Roboto,Arial,sans-serif;cursor:pointer}
+  .nv:hover{border-color:var(--su)}
+  .cg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+  .cw{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--su);text-align:center;padding:4px 0;font-weight:500}
+  .dc{font:inherit;color:inherit;text-align:left;background:transparent;border:1px solid var(--bd);border-radius:8px;
+      min-height:104px;padding:6px;cursor:pointer;display:flex;flex-direction:column;gap:3px;min-width:0;overflow:hidden}
+  .dc.vac{border-color:transparent;cursor:default}
+  .dc.fs{background:var(--bg)}
+  .dc:hover:not(.vac){border-color:var(--su)}
+  .dc.sel{border-color:var(--az);box-shadow:0 0 0 1px var(--az)}
+  .dn{font-size:12px;font-weight:500;align-self:flex-start}
+  .hoy .dn{background:var(--az);color:#fff;border-radius:999px;padding:1px 7px}
+  .chs{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .ch{display:block;font-size:11px;padding:2px 6px;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+  .mas{font-size:11px;color:var(--su)}
+  .dts{display:none;gap:3px;flex-wrap:wrap;justify-content:center}
+  .dt{width:7px;height:7px;border-radius:50%}
+  .dm{margin-top:auto;padding-top:2px;font-size:12px;font-weight:700;line-height:1.2;white-space:nowrap}
+  .dm .mc{display:none}
+  .ley{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--su)}
+  .ley span{display:inline-flex;align-items:center;gap:6px}
+  .ley .hh{background:var(--az);color:#fff;border-radius:999px;padding:0 6px;font-size:11px;font-style:normal}
+  .det{margin-top:16px;padding-top:14px;border-top:1px solid var(--bd)}
+  .dh{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:14px;margin-bottom:6px}
+  .dh span{color:var(--su);font-size:13px}
+  .dr{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--bd)}
+  .dr .a{min-width:0}
+  .dr .a b{font-size:14px;margin-right:6px}
+  .dr .a small{display:block;font-size:12px;color:var(--su);margin-top:3px}
+  .dr .z{text-align:right;white-space:nowrap}
+  .dr .z b{display:block;font-size:14px}
+  .dr .z small{font-size:12px;font-weight:500}
+  .vacio2{font-size:13px;color:var(--su);padding:6px 0}
+  .nota{margin-top:20px;text-align:center;font-size:12px;color:var(--su)}
+  @media (max-width:560px){
+    .in{padding:0 16px}
+    .ban{padding:18px 0}
+    .ban h1{font-size:21px}
+    .der{text-align:left}
+    .bd{padding-top:18px}
+    .tot{padding:14px 16px}
+    .tot b{font-size:25px}
+    .g{grid-template-columns:1fr}
+    .pn{padding:14px}
+    .cg{gap:3px}
+    .dc{min-height:62px;padding:4px;align-items:center;gap:2px}
+    .dn{align-self:center}
+    .chs{display:none}
+    .dts{display:flex}
+    .dm{margin-top:0;font-size:10px;text-align:center}
+    .dm .mf{display:none}
+    .dm .mc{display:inline}
+  }
+</style>
+</head>
+<body>
+<div class="app" data-theme="light" id="app">
+  <div class="ban">
+    <div class="in">
+      <div><small>Control de pagos</small><h1 id="empresa"></h1></div>
+      <div class="der">Actualizado: <span id="actualizado"></span><br>
+        <button class="tema" id="tema">Modo oscuro</button>
+      </div>
+    </div>
+  </div>
+  <div class="in bd">
+    <div class="tot">
+      <div><div class="l">Total pendiente</div><b id="k-t"></b></div>
+      <i id="n-t"></i>
+    </div>
+    <div class="sh"><span class="dot" style="background:var(--rj)"></span><b>Vencidos</b><i id="c-v"></i></div>
+    <div class="g" id="l-v"></div>
+    <div class="sh"><span class="dot" style="background:var(--am)"></span><b id="t-p">Por vencer</b><i id="c-p"></i></div>
+    <div class="g" id="l-p"></div>
+    <div class="sh"><span class="dot" style="background:var(--az)"></span><b>Pr&oacute;ximos</b><i id="c-x"></i></div>
+    <div class="g" id="l-x"></div>
+    <div class="h2">Calendario de vencimientos</div>
+    <div class="pn">
+      <div class="ch-h">
+        <div class="ch-t" id="cal-t"></div>
+        <div class="nvs">
+          <button type="button" class="nv" id="prev" aria-label="Mes anterior">&lsaquo;</button>
+          <button type="button" class="nv" id="hoy">Hoy</button>
+          <button type="button" class="nv" id="next" aria-label="Mes siguiente">&rsaquo;</button>
+        </div>
+      </div>
+      <div class="cg" id="cal"></div>
+      <div class="ley">
+        <span><i class="dot" style="background:var(--rj)"></i>Vencido</span>
+        <span><i class="dot" style="background:var(--am)"></i>Por vencer</span>
+        <span><i class="dot" style="background:var(--az)"></i>Pr&oacute;ximo</span>
+        <span><i class="hh">12</i>Hoy</span>
+        <span>El monto de cada d&iacute;a es el total a pagar ese d&iacute;a</span>
+      </div>
+      <div class="det" id="det"></div>
+    </div>
+    <div class="nota" id="nota"></div>
+  </div>
+</div>
+<script>
+const EMPRESA = "CHIFA TAY PANDA S.A.C.";
+const ACTUALIZADO = "05/11/2026 19:14";
+const MONEDA = "S/";
+const DIAS_ALERTA = 7;
+const PAGOS = [
+  {proveedor:"Claro Internet local", servicio:"", doc:"SB01-0667527471", vence:"2026-11-10T23:59:00", monto:87.39},
+  {proveedor:"Recibo agua Sedalib Noviembre", servicio:"", doc:"S106-24745368-17", vence:"2026-11-15T23:59:00", monto:374.40},
+  {proveedor:"Recibo luz Hidrandina Agosto ", servicio:"", doc:"S501-74169695", vence:"2026-09-15T23:59:00", monto:771.60},
+  {proveedor:"Recibo luz Hidrandina  Setiembre", servicio:"", doc:" S501-74489549", vence:"2026-10-15T23:59:00", monto:763.20},
+  {proveedor:"Recibo luz Hidrandina Octubre ", servicio:"", doc:"S501-74816362", vence:"2026-11-15T23:59:00", monto:867.60},
+  {proveedor:"Alquler de local Octubre", servicio:"", doc:"", vence:"2026-11-10T23:59:00", monto:6900.00},
+  {proveedor:"Plan de celular de ventas Noviembre", servicio:"", doc:"", vence:"2026-11-21T23:59:00", monto:37.90},
+  {proveedor:"Plan gerencial Noviembre ", servicio:"", doc:"", vence:"2026-11-21T23:59:00", monto:39.90}
+];
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pad = n => String(n).padStart(2,"0");
+const fmt = n => MONEDA + " " + n.toLocaleString("es-PE",{minimumFractionDigits:2,maximumFractionDigits:2});
+const corto = n => n.toLocaleString("es-PE",{maximumFractionDigits:0});
+const pl  = n => n + (n === 1 ? " pago" : " pagos");
+const fecha = d => pad(d.getDate()) + "/" + pad(d.getMonth()+1) + "/" + d.getFullYear();
+const clave = d => d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate());
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+function dur(ms){
+  const t = Math.floor(Math.abs(ms)/60000);
+  const d = Math.floor(t/1440), h = Math.floor(t%1440/60), m = t%60;
+  return (d ? d+" d " : "") + ((d||h) ? h+" h " : "") + m + " min";
+}
+const COL  = {v:["var(--rj)","tv"], p:["var(--am)","tp"], x:["var(--az)","tx"]};
+const ETIQ = {v:"Vencido", p:"Por vencer", x:"Pr\u00f3ximo"};
+let LISTA = [], POR = {};
+let cy, cm, sel = null;
+function tarjeta(p, now, k){
+  const ms = p.vence - now;
+  return '<div class="c"><div class="bar" style="background:' + COL[k][0] + '"></div><div class="cb">' +
+    '<div class="top"><div><div class="pv">' + esc(p.proveedor) + '</div>' +
+    '<div class="sv">' + esc(p.servicio) + ' \u00b7 ' + esc(p.doc) + '</div></div>' +
+    '<div class="mto">' + fmt(p.monto) + '</div></div>' +
+    '<div class="pie"><span>Vence ' + fecha(p.vence) + '</span>' +
+    '<span class="tm ' + COL[k][1] + '">' + (ms < 0 ? "hace " : "en ") + dur(ms) + '</span></div>' +
+    '</div></div>';
+}
+function renderCal(){
+  const hoyK = clave(new Date());
+  $("cal-t").textContent = cap(new Date(cy, cm, 1).toLocaleDateString("es-PE",{month:"long", year:"numeric"}));
+  let h = "";
+  ["Lun","Mar","Mi\u00e9","Jue","Vie","S\u00e1b","Dom"].forEach(w => { h += '<div class="cw">' + w + '</div>'; });
+  const off = (new Date(cy, cm, 1).getDay() + 6) % 7;
+  const n = new Date(cy, cm + 1, 0).getDate();
+  for (let i = 0; i < off; i++) h += '<div class="dc vac"></div>';
+  for (let d = 1; d <= n; d++){
+    const k = cy + "-" + pad(cm+1) + "-" + pad(d);
+    const ps = POR[k] || [];
+    const dow = (off + d - 1) % 7;
+    const cls = "dc" + (dow >= 5 ? " fs" : "") + (k === hoyK ? " hoy" : "") + (k === sel ? " sel" : "");
+    const chips = ps.slice(0,2).map(p => '<span class="ch e-' + p.k + '">' + esc(p.proveedor) + '</span>').join("") +
+                  (ps.length > 2 ? '<span class="mas">+' + (ps.length-2) + ' m\u00e1s</span>' : "");
+    const dots = ps.map(p => '<span class="dt" style="background:' + COL[p.k][0] + '"></span>').join("");
+    const suma = ps.reduce((a,p) => a + p.monto, 0);
+    const cc = ps.some(p => p.k === "v") ? "tv" : ps.some(p => p.k === "p") ? "tp" : "tx";
+    const monto = ps.length
+      ? '<span class="dm ' + cc + '"><span class="mf">' + fmt(suma) + '</span><span class="mc">' + corto(suma) + '</span></span>'
+      : "";
+    h += '<button type="button" class="' + cls + '" data-k="' + k + '"><span class="dn">' + d + '</span>' +
+         '<span class="chs">' + chips + '</span><span class="dts">' + dots + '</span>' + monto + '</button>';
+  }
+  const rest = (7 - (off + n) % 7) % 7;
+  for (let i = 0; i < rest; i++) h += '<div class="dc vac"></div>';
+  $("cal").innerHTML = h;
+}
+function renderDet(){
+  if (!sel){ $("det").innerHTML = '<div class="vacio2">Toca un d\u00eda para ver sus pagos.</div>'; return; }
+  const [y,m,d] = sel.split("-").map(Number);
+  const titulo = cap(new Date(y, m-1, d).toLocaleDateString("es-PE",{weekday:"long", day:"numeric", month:"long", year:"numeric"}));
+  const ps = POR[sel] || [];
+  const now = Date.now();
+  const suma = ps.reduce((a,p) => a + p.monto, 0);
+  let h = '<div class="dh"><b>' + titulo + '</b><span>' + (ps.length ? pl(ps.length) + " \u00b7 " + fmt(suma) : "Sin vencimientos este d\u00eda") + '</span></div>';
+  h += ps.map(p => {
+    const ms = p.vence - now;
+    return '<div class="dr"><div class="a"><b>' + esc(p.proveedor) + '</b><span class="pl e-' + p.k + '">' + ETIQ[p.k] + '</span>' +
+           '<small>' + esc(p.servicio) + ' \u00b7 ' + esc(p.doc) + '</small></div>' +
+           '<div class="z"><b>' + fmt(p.monto) + '</b><small class="' + COL[p.k][1] + '">' + (ms < 0 ? "hace " : "en ") + dur(ms) + '</small></div></div>';
+  }).join("");
+  $("det").innerHTML = h;
+}
+$("cal").onclick = e => {
+  const b = e.target.closest("[data-k]");
+  if (!b) return;
+  sel = b.dataset.k;
+  renderCal(); renderDet();
+};
+$("prev").onclick = () => { cm--; if (cm < 0){ cm = 11; cy--; } renderCal(); };
+$("next").onclick = () => { cm++; if (cm > 11){ cm = 0; cy++; } renderCal(); };
+$("hoy").onclick  = () => { const h = new Date(); cy = h.getFullYear(); cm = h.getMonth(); sel = clave(h); renderCal(); renderDet(); };
+function render(){
+  const now = Date.now(), lim = DIAS_ALERTA * 86400000;
+  LISTA = PAGOS.map(p => {
+    const v = new Date(p.vence), ms = v - now;
+    return {...p, vence:v, k: ms < 0 ? "v" : ms <= lim ? "p" : "x"};
+  }).sort((a,b) => a.vence - b.vence);
+  POR = {};
+  LISTA.forEach(p => { (POR[clave(p.vence)] = POR[clave(p.vence)] || []).push(p); });
+  const g = {v:[], p:[], x:[]};
+  LISTA.forEach(p => g[p.k].push(p));
+  let total = 0;
+  for (const k of ["v","p","x"]){
+    total += g[k].reduce((a,p) => a + p.monto, 0);
+    $("l-"+k).innerHTML = g[k].length ? g[k].map(p => tarjeta(p, now, k)).join("") : '<div class="vacio">Sin pagos en este grupo</div>';
+    $("c-"+k).textContent = pl(g[k].length);
+  }
+  $("k-t").textContent = fmt(total);
+  $("n-t").textContent = pl(PAGOS.length);
+  $("t-p").textContent = "Por vencer \u00b7 pr\u00f3ximos " + DIAS_ALERTA + " d\u00edas";
+  renderCal();
+  renderDet();
+}
+$("empresa").textContent = EMPRESA;
+$("actualizado").textContent = ACTUALIZADO;
+$("nota").textContent = EMPRESA + " \u00b7 Datos exportados desde Excel el " + ACTUALIZADO + " \u00b7 El tiempo se recalcula autom\u00e1ticamente";
+document.title = "Pagos pendientes - " + EMPRESA;
+function setTema(t){
+  $("app").dataset.theme = t;
+  $("tema").textContent = t === "dark" ? "Modo claro" : "Modo oscuro";
+  try { localStorage.setItem("tema_pagos", t); } catch(e){}
+}
+$("tema").onclick = () => setTema($("app").dataset.theme === "dark" ? "light" : "dark");
+try { if (localStorage.getItem("tema_pagos") === "dark") setTema("dark"); } catch(e){}
+(function(){
+  const ahora = Date.now();
+  const prox = PAGOS.map(p => new Date(p.vence)).filter(d => d >= ahora).sort((a,b) => a - b)[0];
+  const base = prox || new Date();
+  cy = base.getFullYear(); cm = base.getMonth();
+  sel = prox ? clave(prox) : null;
+})();
+render();
+setInterval(render, 10000);
+</script>
+</body>
+</html>
